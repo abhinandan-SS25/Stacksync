@@ -1,39 +1,59 @@
-# Run a single jailed process per request
 mode: ONCE
-
-# Limit runtime to 5 seconds
-time_limit: 5
-
-# Jail hostname
 hostname: "sandbox"
-
-# Working directory inside jail
 cwd: "/app"
 
-# Use Python inside the container
-exec_bin {
-  path: "/usr/bin/python3"
-}
+# Time and resource limits
+time_limit: 30
+max_cpus: 1
 
-# Mount Python and system libraries as read-only
+# Memory limits (in MB)
+rlimit_as: 256
+rlimit_core: 0
+rlimit_cpu: 10
+rlimit_fsize: 5
+rlimit_nofile: 64
+
+# Process limits
+rlimit_nproc: 16
+rlimit_stack: 8
+
+# Network isolation - disabled in Docker
+clone_newnet: false
+
+# Filesystem isolation
+clone_newns: true
+clone_newpid: true
+clone_newipc: true
+clone_newuts: true
+clone_newcgroup: false
+
+# User/group isolation - simplified for Docker
+clone_newuser: false
+keep_caps: false
+
+# Mount points for Python runtime
 mount {
   src: "/usr"
   dst: "/usr"
   is_bind: true
   rw: false
 }
+
 mount {
   src: "/lib"
   dst: "/lib"
   is_bind: true
   rw: false
 }
+
 mount {
   src: "/lib64"
   dst: "/lib64"
   is_bind: true
   rw: false
+  mandatory: false
 }
+
 mount {
   src: "/bin"
   dst: "/bin"
@@ -41,7 +61,15 @@ mount {
   rw: false
 }
 
-# Mount your application code as read/write
+# Virtual environment (contains all Python packages)
+mount {
+  src: "/opt/venv"
+  dst: "/opt/venv"
+  is_bind: true
+  rw: false
+}
+
+# Working directory (read-write for user scripts)
 mount {
   src: "/app"
   dst: "/app"
@@ -49,34 +77,54 @@ mount {
   rw: true
 }
 
-# Allow temp files inside jail
+# Temporary directory - create a confined tmp
 mount {
-  src: "/tmp"
   dst: "/tmp"
-  is_bind: true
+  fstype: "tmpfs"
   rw: true
+  options: "size=10m,nr_inodes=1024"
 }
 
-clone_newuser: false
-clone_newnet: false
-clone_newpid: false
-clone_newipc: false
-clone_newuts: false
-clone_newns: false
-clone_newcgroup: false
-
-uidmap {
-  inside_id: 65534
-  outside_id: 65534
-  count: 1
-}
-gidmap {
-  inside_id: 65534
-  outside_id: 65534
-  count: 1
+# /proc filesystem (minimal)
+mount {
+  dst: "/proc"
+  fstype: "proc"
+  rw: false
 }
 
-# Resource limits
-rlimit_as: 512        # Memory limit (MB)
-rlimit_nproc: 10      # Max number of processes
-rlimit_fsize: 10      # Max file size (MB)
+# /dev with essential devices only
+mount {
+  dst: "/dev"
+  fstype: "tmpfs"
+  rw: true
+  options: "size=1m,nr_inodes=128"
+}
+
+mount {
+  src: "/dev/null"
+  dst: "/dev/null"
+  rw: true
+  is_bind: true
+}
+
+mount {
+  src: "/dev/zero"
+  dst: "/dev/zero"
+  rw: true
+  is_bind: true
+}
+
+mount {
+  src: "/dev/urandom"
+  dst: "/dev/urandom"
+  rw: true
+  is_bind: true
+}
+
+# Environment variables
+envar: "PATH=/opt/venv/bin:/usr/bin:/bin"
+envar: "PYTHONDONTWRITEBYTECODE=1"
+envar: "PYTHONUNBUFFERED=1"
+
+# Security settings for Docker environment
+disable_no_new_privs: false

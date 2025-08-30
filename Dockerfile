@@ -19,7 +19,7 @@ COPY server.py execution_wrapper.py run.python3.config.proto /app/
 
 # Install Flask
 RUN python3 -m venv /opt/venv \
- && /opt/venv/bin/pip install flask
+ && /opt/venv/bin/pip install flask pandas numpy
 ENV PATH="/opt/venv/bin:$PATH"
 
 EXPOSE 8080
