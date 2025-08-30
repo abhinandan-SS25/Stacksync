@@ -13,7 +13,7 @@ Test service with
 `curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"script": "def main():\n    print(\"Hello from stdout\")\n    return {\"message\": \"Hello from Cloud Run\"}"}' \
-  https://stacksync-test-553500313772.us-south1.run.app/execute`
+  https://stacksync-553500313772.us-south1.run.app/execute`
   
 Expected Response
 
