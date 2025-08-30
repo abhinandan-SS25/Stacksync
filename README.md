@@ -13,14 +13,11 @@ Test service with
 `curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"script": "def main():\n    print(\"Hello from stdout\")\n    return {\"message\": \"Hello from Cloud Run\"}"}' \
-  https://stacksync-553500313772.europe-west1.run.app/execute`
+  https://stacksync-test-553500313772.us-south1.run.app/execute`
   
 Expected Response
 
-`{
-  "result": {"message": "Hello from Cloud Run"},
-  "stdout": "Hello from stdout\n"
-}`
+`{"result":{"message":"Hello from Cloud Run"},"stdout":"Hello from stdout\n\n"}`
 
 ## Running locally
 Run the server locally as a docker container using the following command
@@ -32,7 +29,7 @@ Test with
 `curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"script": "def main():\n    print(\"Hello from stdout\")\n    return {\"message\": \"Hello from Cloud Run\"}"}' \
-  http://localhost:8080/execute`
+  http://localhost:9090/execute`
 
 ## Features
 Accepts `POST` requests to `/execute` with JSON payload:
