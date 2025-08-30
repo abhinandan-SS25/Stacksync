@@ -13,14 +13,14 @@ RUN git clone https://github.com/google/nsjail.git /tmp/nsjail \
     && cp /tmp/nsjail/nsjail /usr/bin/nsjail \
     && rm -rf /tmp/nsjail
 
-# Set work directory and copy app files
-WORKDIR /app
-COPY server.py execution_wrapper.py run.python3.config.proto /app/
-
 # Install Flask
 RUN python3 -m venv /opt/venv \
  && /opt/venv/bin/pip install flask pandas numpy
 ENV PATH="/opt/venv/bin:$PATH"
+
+# Set work directory and copy app files
+WORKDIR /app
+COPY server.py execution_wrapper.py run.python3.config.proto /app/
 
 EXPOSE 8080
 CMD ["python3", "server.py"]
