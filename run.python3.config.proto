@@ -1,40 +1,30 @@
 mode: ONCE
 time_limit: 30
-hostname: "sandbox"
+hostname: "sandbox" 
 cwd: "/app"
 
-exec_bin {
-  path: "/usr/bin/python3"
-}
-
-mount { src: "/lib64" dst: "/lib64" is_bind: true rw: false }
-mount { src: "/opt/venv" dst: "/opt/venv" is_bind: true rw: false }
-mount { src: "/app" dst: "/app" is_bind: true rw: true }
-mount { dst: "/tmp" fstype: "tmpfs" rw: true options: "size=10m,nr_inodes=1024" }
-mount { dst: "/proc" fstype: "proc" rw: false }
-mount { dst: "/dev" fstype: "tmpfs" rw: true options: "size=1m,nr_inodes=128" }
-mount { src: "/dev/null" dst: "/dev/null" is_bind: true rw: true }
-mount { src: "/dev/zero" dst: "/dev/zero" is_bind: true rw: true }
-mount { src: "/dev/urandom" dst: "/dev/urandom" is_bind: true rw: true }
-
+# Minimal isolation - just resource limits
 clone_newuser: false
-clone_newnet: false
+clone_newnet: false  
 clone_newns: false
 clone_newpid: false
 clone_newipc: false
 clone_newuts: false
 clone_newcgroup: false
 
+# Skip capability management entirely
+keep_caps: false
+disable_no_new_privs: false
+
+# Resource limits only
 rlimit_as: 256
 rlimit_core: 0
 rlimit_cpu: 10
 rlimit_fsize: 5
 rlimit_nofile: 64
 rlimit_nproc: 16
-rlimit_stack: 8
 
+# Environment
 envar: "PATH=/opt/venv/bin:/usr/bin:/bin"
 envar: "PYTHONDONTWRITEBYTECODE=1"
 envar: "PYTHONUNBUFFERED=1"
-
-disable_no_new_privs: true
