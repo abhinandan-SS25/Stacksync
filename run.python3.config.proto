@@ -1,9 +1,15 @@
 mode: ONCE
 time_limit: 30
-hostname: "sandbox" 
 cwd: "/app"
 
-# Minimal isolation - just resource limits
+# Mount essential directories so Python can run
+mount { src: "/usr" dst: "/usr" is_bind: true rw: false }
+mount { src: "/lib" dst: "/lib" is_bind: true rw: false }  
+mount { src: "/lib64" dst: "/lib64" is_bind: true rw: false mandatory: false }
+mount { src: "/opt/venv" dst: "/opt/venv" is_bind: true rw: false }
+mount { src: "/app" dst: "/app" is_bind: true rw: true }
+
+# Run as the same user to avoid permission issues
 clone_newuser: false
 clone_newnet: false  
 clone_newns: false
@@ -12,19 +18,21 @@ clone_newipc: false
 clone_newuts: false
 clone_newcgroup: false
 
-# Skip capability management entirely
+# Avoid security bit manipulation
 keep_caps: false
 disable_no_new_privs: false
 
-# Resource limits only
-rlimit_as: 256
-rlimit_core: 0
-rlimit_cpu: 10
-rlimit_fsize: 5
-rlimit_nofile: 64
-rlimit_nproc: 16
+# Resource limits (primary security mechanism)
+rlimit_as: 256          # 256MB memory limit
+rlimit_cpu: 10          # 10 seconds CPU time
+rlimit_fsize: 10        # 10MB file size limit
+rlimit_nofile: 64       # 64 open files max
+rlimit_nproc: 32        # 32 processes max
 
-# Environment
+# Environment variables
 envar: "PATH=/opt/venv/bin:/usr/bin:/bin"
 envar: "PYTHONDONTWRITEBYTECODE=1"
 envar: "PYTHONUNBUFFERED=1"
+
+# Skip problematic operations
+skip_setsid: true

@@ -22,5 +22,12 @@ ENV PATH="/opt/venv/bin:$PATH"
 WORKDIR /app
 COPY server.py execution_wrapper.py run.python3.config.proto /app/
 
+# Create a non-root user for running the application
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app /opt/venv
+
+# Switch to non-root user
+USER appuser
+
 EXPOSE 8080
 CMD ["python3", "server.py"]

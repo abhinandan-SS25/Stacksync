@@ -8,7 +8,7 @@ command = [
     "nsjail",
     "--config", "./run.python3.config.proto",
     "--",
-    "python3",
+    "/usr/bin/python3",
     "execution_wrapper.py"
 ]
 
