@@ -1,38 +1,54 @@
+# Corrected run.python3.config.proto
+
 mode: ONCE
 time_limit: 30
 cwd: "/app"
+hostname: "jailed-host"
 
-# Mount essential directories so Python can run
+# --- Namespaces and User Mapping ---
+# This is the most critical section for Cloud Run.
+# We enable user namespaces to create the jail without host root privileges.
+clone_newuser: true
+clone_newnet: true
+clone_newns: true
+clone_newpid: true
+clone_newipc: true
+clone_newuts: true
+clone_newcgroup: false # cgroup requires more privileges, often not needed.
+
+# Map the container's 'appuser' (UID 1000) to be the same UID inside the jail.
+# This ensures the jailed process can read/write files owned by 'appuser'.
+uidmap { inside_id: "1000" outside_id: "1000" count: 1 }
+gidmap { inside_id: "1000" outside_id: "1000" count: 1 }
+
+# --- Security Settings ---
+# Run the process as our mapped user inside the jail.
+uid: 1000
+gid: 1000
+# Drop all capabilities for security.
+keep_caps: false
+
+# --- Mounts ---
+# Mount essential directories as read-only.
 mount { src: "/usr" dst: "/usr" is_bind: true rw: false }
-mount { src: "/lib" dst: "/lib" is_bind: true rw: false }  
+mount { src: "/lib" dst: "/lib" is_bind: true rw: false }
 mount { src: "/lib64" dst: "/lib64" is_bind: true rw: false mandatory: false }
 mount { src: "/opt/venv" dst: "/opt/venv" is_bind: true rw: false }
+# Mount the app directory as read-write so user_script.py can be created.
 mount { src: "/app" dst: "/app" is_bind: true rw: true }
+# Mount /dev/urandom for random number generation, required by Python.
+mount { src: "/dev/urandom" dst: "/dev/urandom" is_bind: true rw: false }
 
-# Run as the same user to avoid permission issues
-clone_newuser: false
-clone_newnet: false  
-clone_newns: false
-clone_newpid: false
-clone_newipc: false
-clone_newuts: false
-clone_newcgroup: false
-
-# Avoid security bit manipulation
-keep_caps: false
-disable_no_new_privs: false
-
-# Resource limits (primary security mechanism)
+# --- Resource Limits (Your existing limits are good) ---
 rlimit_as: 256          # 256MB memory limit
 rlimit_cpu: 10          # 10 seconds CPU time
 rlimit_fsize: 10        # 10MB file size limit
 rlimit_nofile: 64       # 64 open files max
 rlimit_nproc: 32        # 32 processes max
 
-# Environment variables
+# --- Environment Variables ---
 envar: "PATH=/opt/venv/bin:/usr/bin:/bin"
 envar: "PYTHONDONTWRITEBYTECODE=1"
 envar: "PYTHONUNBUFFERED=1"
 
-# Skip problematic operations
 skip_setsid: true
