@@ -10,10 +10,7 @@ A containerized Flask application to execute Python scripts in a nsjail-restrict
 ## Deployed on Google Cloud Run
 Test service with
 
-`curl -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"script": "def main():\n    print(\"Hello from stdout\")\n    return {\"message\": \"Hello from Cloud Run\"}"}' \
-  https://stacksync-553500313772.us-south1.run.app/execute`
+<pre> curl -X POST -H "Content-Type: application/json" -d '{"script":"def main():\n print(\"Hello from stdout\")\n return {\"message\": \"Hello from Cloud Run\"}"}' https://stacksync-553500313772.us-south1.run.app/execute </pre>
   
 Expected Response
 
@@ -26,10 +23,7 @@ Run the server locally as a docker container using the following command
 
 Test with
 
-`curl -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"script": "def main():\n    print(\"Hello from stdout\")\n    return {\"message\": \"Hello from Cloud Run\"}"}' \
-  http://localhost:9090/execute`
+<pre> curl -X POST -H "Content-Type: application/json" -d '{"script":"def main():\n print(\"Hello from stdout\")\n return {\"message\": \"Hello from Cloud Run\"}"}' http://localhost:9090/execute </pre>
 
 ## Features
 Accepts `POST` requests to `/execute` with JSON payload:
